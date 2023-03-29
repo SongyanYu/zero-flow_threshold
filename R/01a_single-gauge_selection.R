@@ -6,11 +6,11 @@
 #---
 
 # kennard flow regime classification
-kennard.df <- readxl::read_xls('../Zero-flow threshold/Data/fwb_2307_sm_appendix s1.xls',
+kennard.df <- readxl::read_xls('../../Zero-flow threshold/Data/fwb_2307_sm_appendix s1.xls',
                                sheet = 'Stream gauge characteristics')
 
 # CAMEL_AUS gauges
-camel.df <- read.csv('../Zero-flow threshold/Data/multiple_gauge.csv')
+camel.df <- read.csv('../../Zero-flow threshold/Data/multiple_gauge.csv')
 
 library(dplyr)
 
@@ -32,7 +32,7 @@ gauge.df <- kennard.df %>%
 gauge.df %>%
   filter(`Gauge Number` %in% c('204034', '227226', '230210', '403217', '406224',
                                '424002', '614044', '803003')) %>%
-  write.csv('../Zero-flow threshold/Data/01a_single_gauge_selection.csv',
+  write.csv('../../Zero-flow threshold/Data/01a_single_gauge_selection.csv',
             row.names = FALSE)
 
 

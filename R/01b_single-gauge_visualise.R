@@ -2,24 +2,23 @@
 # individual gauge scenario - sensitivity analysis of zero flow threshold
 # author: Songyan Yu
 # date created: 12/12/2022
+# date updated: 29/03/2023
 #---
 
 library(dplyr)
 library(ggplot2)
 
-hydro.files <- list.files("Results/sensitivityAnalysis_zeroFlow_v2/",
+hydro.files <- list.files("../../FlowIntermittency_AUS/Results/sensitivityAnalysis_zeroFlow/",
                           pattern = "flowMetrics_AnnualHydroMetrics",
                           full.names = TRUE)
 
-peak2z.files <- list.files("Results/sensitivityAnalysis_zeroFlow_v2/",
+peak2z.files <- list.files("../../FlowIntermittency_AUS/Results/sensitivityAnalysis_zeroFlow/",
                            pattern = "peak2zero",
                            full.names = TRUE)
 
-x <- peak2z.files[1]
-
 peak2z.lst <-
   lapply(peak2z.files, FUN = function(x){
-    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][3],split = "_")[[1]][4],split = "-")[[1]][2], split = ".csv")[[1]]
+    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][6],split = "_")[[1]][4],split = "-")[[1]][1], split = ".csv")[[1]]
     df <-
       read.csv(x) %>%
       filter(!is.na(peak2z_length)) %>%
@@ -31,7 +30,7 @@ peak2z.lst <-
 
 zero.flow.duration.lst <-
   lapply(hydro.files, FUN = function(x) {
-    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][3],split = "_")[[1]][4],split = "-")[[1]][2], split = ".csv")[[1]]
+    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][6],split = "_")[[1]][4],split = "-")[[1]][1], split = ".csv")[[1]]
     df <- 
       read.csv(x) %>%
       group_by(gauge_ID) %>%
@@ -41,7 +40,7 @@ zero.flow.duration.lst <-
 
 zeroflow.first.lst <-
   lapply(hydro.files, FUN = function(x) {
-    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][3],split = "_")[[1]][4],split = "-")[[1]][2], split = ".csv")[[1]]
+    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][6],split = "_")[[1]][4],split = "-")[[1]][1], split = ".csv")[[1]]
     df <- 
       read.csv(x) %>%
       filter(!is.infinite(zeroflowfirst_r)) %>%
@@ -68,8 +67,8 @@ classes <- c('Class 5', 'Class 6', 'Class 7', 'Class 8',
              'Class 9', 'Class 10', 'Class 11', 'Class 12')
 
 data_vline <- data.frame(gauge_ID = classes,
-                         vline = c(0.056, 0.028, 0.016, 0.05,
-                                   0.050, 0.050, 0.05, 0.05)) %>%
+                         vline = c(0.056, 0.072, 0.016, 0.076,
+                                   0.050, 0.050, 0.05, 0.046)) %>%
   mutate(gauge_ID = factor(gauge_ID, levels = classes))
 
 p.noflow <- zero.flow.duration.df %>%
@@ -81,7 +80,6 @@ p.noflow <- zero.flow.duration.df %>%
   theme_bw() +
   facet_wrap(~gauge_ID, scales = 'free_y', ncol = 4) +
   xlab("") +
-#  xlab(expression(paste("Zero flow threshold (",m^3/s,")"))) +
   ylab("Dry period fraction") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
@@ -96,7 +94,6 @@ p.firstzeroflow <- zeroflow.first.df %>%
   theme_bw() +
   facet_wrap(~gauge_ID, scales = 'free_y', ncol = 4) +
   xlab("") +
-#  xlab(expression(paste("Zero flow threshold (",m^3/s,")"))) +
   ylab("First zero flow day") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
@@ -120,6 +117,6 @@ ggpubr::ggarrange(p.noflow, p.firstzeroflow, p.drydown,
                   label.x = 0.93,
                   label.y = 1)
 
-ggsave(filename = "../Zero-flow threshold/Figures/02_visualise_zeroFlowThreshold_3metrics.png",
+ggsave(filename = "Figures/02_visualise_zeroFlowThreshold_3metrics.png",
        width = 6, height = 8)
 
