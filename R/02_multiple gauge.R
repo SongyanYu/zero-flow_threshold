@@ -128,6 +128,14 @@ do.call(rbind.data.frame, peak2z.lst) %>%
 camel.gauge <- read.csv('../../FlowIntermittency_AUS/Data/CAMELS_AUS_Attributes&Indices_MasterTable.csv') %>%
   select(station_id, long_centroid, lat_centroid)
 
+read.csv('../../FlowIntermittency_AUS/Data/CAMELS_AUS_Attributes&Indices_MasterTable.csv') %>%
+  select(station_id, start_date, end_date) %>%
+  mutate(start_date = lubridate::ymd(start_date),
+         end_date = lubridate::ymd(end_date),
+         duration = (end_date - start_date)/365) %>%
+  ggplot() +
+  geom_boxplot(aes(y = duration))
+
 kennard.class <- readxl::read_xls('Data/fwb_2307_sm_appendix s1.xls',
                                   sheet = 'Stream gauge characteristics') %>%
   select('Gauge Number', 'Flow regime class (C1)') %>%
