@@ -164,7 +164,6 @@ do.call(rbind.data.frame, zero.flow.duration.lst) %>%
 
 perennial_gauge_32 <- read.csv('Data/Perennial_gauge_032cms.csv')
 
-
 # which gauges changed to be non-perennial when zero-flow
 # threshold is set to 0.032 m3/s
 perennial_gauge_0 %>%
