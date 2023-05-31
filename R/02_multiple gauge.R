@@ -2,7 +2,7 @@
 # identify intermittent stream gauges in CAMEL_AUS for multiple-gauge case study
 # author: Songyan Yu
 # date: 15/12/2022
-# date updated: 08/04/2023
+# date updated: 31/05/2023
 #---
 library(dplyr)
 library(ggplot2)
@@ -46,13 +46,12 @@ zeroflow.first.lst <-
       mutate(zero_flow_threshold = zero.flow)
   })
 
-
 # box plot of average annual fraction of no flow 
 # for all gauges across all zero flow thresholds.
 boxplot.df <- 
   do.call(rbind.data.frame, zero.flow.duration.lst) %>%
   mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
-  filter(avg_ann > 0) 
+  filter(avg_ann > 0)
 
 ## box plot of annual fraction of no flows
 p.noflow<- ggplot(data =boxplot.df) +
@@ -71,7 +70,7 @@ lineplot.df <-
 
 ## plot of proportion of intermittent gauges
 p.intermittent <- ggplot(data = lineplot.df) +
-  geom_line(aes(x = zero_flow_threshold, y = 179- perennial_case), colour = "red") +
+  geom_line(aes(x = zero_flow_threshold, y = 222- perennial_case), colour = "red") +
   theme_bw() +
   ylab("No. of intermittent gauges") +
   #  xlab(expression(paste("Zero flow threshold (",m^3/s,")"))) +
@@ -101,7 +100,6 @@ p.drydown <- do.call(rbind.data.frame, peak2z.lst) %>%
   ylim(0,300) +
   xlab(element_blank())
 
-
 ggpubr::ggarrange(p.noflow, p.firstzeroflow, p.drydown, p.intermittent,
                   ncol = 1,
                   label.x = 0.93,
@@ -116,36 +114,61 @@ library(tidyr)
 boxplot.df %>%
   filter(zero_flow_threshold == 0.0003 | zero_flow_threshold == 0.0099) %>%
   ggplot() +
-  geom_path(aes(x = gauge_ID, y = avg_ann), arrow=arrow(angle=30,length=unit(0.1,"inches"),
-                                                        type="closed")) +
+  geom_path(aes(x = gauge_ID, y = avg_ann), 
+            arrow=arrow(angle=30,length=unit(0.1,"inches"), type="closed")) +
   theme_classic()
-
-
-#  find gauges in intermittent streams
-do.call(rbind.data.frame, zero.flow.duration.lst) %>%
-  mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
-  filter(avg_ann > 0) %>%
-  mutate(gauge_ID = gsub('X', '', gauge_ID))
-
-# identify the 179 intermittent stream gauges for multi-gauge case study.  
-# box plot of average annual fraction of no flow 
-# for all gauges across all zero flow thresholds.
-do.call(rbind.data.frame, zero.flow.duration.lst) %>%
-  mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
-  filter(avg_ann > 0) %>%
-  ggplot() +
-  geom_boxplot(aes(x = zero_flow_threshold, y = avg_ann, group = zero_flow_threshold)) +
-  theme_bw()
-
-read.csv('../../FlowIntermittency_AUS/Data/CAMELS_AUS_Attributes&Indices_MasterTable.csv') %>%
-  mutate(station_id = as.character(station_id)) %>%
-  filter(station_id %in% temp$gauge_ID) %>%
-  write.csv(., '../Zero-flow threshold/Data/multiple_gauge.csv', row.names = FALSE)
-
 
 # removed gauges with long dry-down period
 do.call(rbind.data.frame, peak2z.lst) %>%
   mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
   filter(zero_flow_threshold<0.032) %>%
   filter(avg_ann >200) # dry-down period >200 days
+
+# CAMEL_AUS gauges
+camel.gauge <- read.csv('../../FlowIntermittency_AUS/Data/CAMELS_AUS_Attributes&Indices_MasterTable.csv') %>%
+  select(station_id, long_centroid, lat_centroid)
+
+kennard.class <- readxl::read_xls('Data/fwb_2307_sm_appendix s1.xls',
+                                  sheet = 'Stream gauge characteristics') %>%
+  select('Gauge Number', 'Flow regime class (C1)') %>%
+  rename(gauge_id = 'Gauge Number',
+         regime_class = 'Flow regime class (C1)') %>%
+  rowwise() %>%
+  mutate(regime_class = strsplit(regime_class, split = ' - ')[[1]][1],
+         gauge_id = as.character(gauge_id))
+
+# identify which gauge became intermittent at threshold of 0 m3/s
+do.call(rbind.data.frame, zero.flow.duration.lst) %>%
+  mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
+  filter(zero_flow_threshold == 0 & avg_ann == 0) %>% # 160
+  mutate(gauge_ID = gsub('X', '', gauge_ID)) %>%
+  left_join(., camel.gauge, by = c('gauge_ID' = 'station_id')) %>%
+  write.csv(., 'Data/Perennial_gauge_0cms.csv', row.names = FALSE)
+
+perennial_gauge_0 <- read.csv('Data/Perennial_gauge_0cms.csv')
+  
+# identify which gauge became intermittent at threshold of 0.032 m3/s
+do.call(rbind.data.frame, zero.flow.duration.lst) %>%
+  mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
+  filter(zero_flow_threshold == 0.032 & avg_ann >0) %>%
+  mutate(gauge_ID = gsub('X', '', gauge_ID)) %>%
+  left_join(., camel.gauge, by = c('gauge_ID' = 'station_id')) %>%
+  write.csv(., 'Data/Intermittent_gauge_032cms.csv', row.names = FALSE)
+
+do.call(rbind.data.frame, zero.flow.duration.lst) %>%
+  mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
+  filter(zero_flow_threshold == 0.032 & avg_ann ==0) %>%
+  mutate(gauge_ID = gsub('X', '', gauge_ID)) %>%
+  left_join(., camel.gauge, by = c('gauge_ID' = 'station_id')) %>%
+  write.csv(., 'Data/Perennial_gauge_032cms.csv', row.names = FALSE)
+
+perennial_gauge_32 <- read.csv('Data/Perennial_gauge_032cms.csv')
+
+
+# which gauges changed to be non-perennial when zero-flow
+# threshold is set to 0.032 m3/s
+perennial_gauge_0 %>%
+  filter(!(gauge_ID %in% perennial_gauge_32$gauge_ID)) %>%
+  write.csv(., 'Data/Changed_gauge_032cms.csv', row.names = FALSE)
+
 
