@@ -8,17 +8,17 @@
 library(dplyr)
 library(ggplot2)
 
-hydro.files <- list.files("../../FlowIntermittency_AUS/Results/sensitivityAnalysis_zeroFlow/",
+hydro.files <- list.files("../sensitivityAnalysis_zeroFlow/",
                           pattern = "flowMetrics_AnnualHydroMetrics",
                           full.names = TRUE)
 
-peak2z.files <- list.files("../../FlowIntermittency_AUS/Results/sensitivityAnalysis_zeroFlow/",
+peak2z.files <- list.files("../sensitivityAnalysis_zeroFlow/",
                            pattern = "peak2zero",
                            full.names = TRUE)
 
 peak2z.lst <-
   lapply(peak2z.files, FUN = function(x){
-    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][6],split = "_")[[1]][4],split = "-")[[1]][1], split = ".csv")[[1]]
+    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][3],split = "_")[[1]][4],split = "-")[[1]][1], split = ".csv")[[1]]
     df <-
       read.csv(x) %>%
       filter(!is.na(peak2z_length)) %>%
@@ -30,7 +30,7 @@ peak2z.lst <-
 
 zero.flow.duration.lst <-
   lapply(hydro.files, FUN = function(x) {
-    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][6],split = "_")[[1]][4],split = "-")[[1]][1], split = ".csv")[[1]]
+    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][3],split = "_")[[1]][4],split = "-")[[1]][1], split = ".csv")[[1]]
     df <- 
       read.csv(x) %>%
       group_by(gauge_ID) %>%
@@ -40,7 +40,7 @@ zero.flow.duration.lst <-
 
 zeroflow.first.lst <-
   lapply(hydro.files, FUN = function(x) {
-    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][6],split = "_")[[1]][4],split = "-")[[1]][1], split = ".csv")[[1]]
+    zero.flow <- strsplit(strsplit(strsplit(strsplit(x, split = "/")[[1]][3],split = "_")[[1]][4],split = "-")[[1]][1], split = ".csv")[[1]]
     df <- 
       read.csv(x) %>%
       filter(!is.infinite(zeroflowfirst_r)) %>%
