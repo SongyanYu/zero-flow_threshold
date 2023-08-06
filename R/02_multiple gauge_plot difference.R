@@ -103,13 +103,13 @@ p.drydown <- do.call(rbind.data.frame, peak2z.lst) %>%
   ylim(-200, 100) +
   xlab(element_blank())
 
-ggpubr::ggarrange(p.noflow, p.firstzeroflow, p.drydown, p.intermittent,
+ggpubr::ggarrange(p.noflow, p.firstzeroflow, p.drydown,
                   ncol = 1,
                   label.x = 0.93,
                   label.y = 1,
                   labels = c('(a)','(b)','(c)', '(d)'))
 
 ggsave(filename = "Figures/02_multi-gauge_zeroFlowThreshold_4metrics_diff.png",
-       width = 7, height = 10)
+       width = 7, height = 7.25)
 
 
