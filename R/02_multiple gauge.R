@@ -76,7 +76,7 @@ p.intermittent <- ggplot(data = lineplot.df) +
   #  xlab(expression(paste("Zero flow threshold (",m^3/s,")"))) +
   xlab(element_blank()) +
   # ylim(50,150) +
-  geom_vline(xintercept = 0.032, linetype ='dashed')+
+#  geom_vline(xintercept = 0.032, linetype ='dashed')+
   xlab(expression(paste("Zero flow threshold (",m^3/s,")")))
 
 
