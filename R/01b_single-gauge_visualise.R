@@ -81,8 +81,8 @@ p.noflow <- zero.flow.duration.df %>%
   facet_wrap(~gauge_ID, scales = 'free_y', ncol = 4) +
   xlab("") +
   ylab("Dry period fraction") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+#  geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
 
   
 p.firstzeroflow <- zeroflow.first.df %>%
@@ -95,8 +95,8 @@ p.firstzeroflow <- zeroflow.first.df %>%
   facet_wrap(~gauge_ID, scales = 'free_y', ncol = 4) +
   xlab("") +
   ylab("First zero flow day") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+#  geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
 
 
 p.drydown <- peak2z.df %>%
@@ -109,8 +109,8 @@ p.drydown <- peak2z.df %>%
   facet_wrap(~gauge_ID, scales = 'free_y', ncol = 4) +
   xlab(expression(paste("Zero flow threshold (",m^3/s,")"))) +
   ylab("Dry-down period (days)") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+#  geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
 
 ggpubr::ggarrange(p.noflow, p.firstzeroflow, p.drydown,
                   ncol = 1,
