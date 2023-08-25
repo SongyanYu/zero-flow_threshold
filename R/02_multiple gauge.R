@@ -61,24 +61,16 @@ p.noflow<- ggplot(data =boxplot.df) +
   xlab(element_blank())
 #  xlab(expression(paste("Zero flow threshold (",m^3/s,")")))
 
-lineplot.df <- 
-  do.call(rbind.data.frame, zero.flow.duration.lst) %>%
+p.noflow.diff <- do.call(rbind.data.frame, zero.flow.duration.lst) %>%
+  group_by(gauge_ID) %>%
+  mutate(base = avg_ann[zero_flow_threshold == '0'],
+         diff = avg_ann - base) %>%
   mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
-  filter(avg_ann == 0) %>%
-  group_by(zero_flow_threshold) %>%
-  summarise(perennial_case = n())
-
-## plot of proportion of intermittent gauges
-p.intermittent <- ggplot(data = lineplot.df) +
-  geom_line(aes(x = zero_flow_threshold, y = 222- perennial_case), colour = "red") +
-  theme_bw() +
-  ylab("No. of intermittent gauges") +
-  #  xlab(expression(paste("Zero flow threshold (",m^3/s,")"))) +
-  xlab(element_blank()) +
-  # ylim(50,150) +
-#  geom_vline(xintercept = 0.032, linetype ='dashed')+
-  xlab(expression(paste("Zero flow threshold (",m^3/s,")")))
-
+  ggplot() +
+  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold)) +
+  theme_classic() +
+  ylab("Diff. in dry period fraction") +
+  xlab(element_blank())
 
 # box plot of average Julian date of first zero flow
 p.firstzeroflow <- do.call(rbind.data.frame, zeroflow.first.lst) %>%
@@ -90,6 +82,18 @@ p.firstzeroflow <- do.call(rbind.data.frame, zeroflow.first.lst) %>%
   xlab(element_blank())
 #  xlab(expression(paste("Zero flow threshold (",m^3/s,")")))
 
+p.firstzeroflow.diff <- do.call(rbind.data.frame, zeroflow.first.lst) %>%
+  group_by(gauge_ID) %>%
+  mutate(base = ifelse('0' %in% zero_flow_threshold, avg_ann[zero_flow_threshold == '0'], avg_ann[zero_flow_threshold == '0.004']),
+         diff = avg_ann - base) %>%
+  mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
+  ggplot()+
+  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold)) +
+  theme_classic() +
+  ylab("Diff. in first zero flow day") +
+  xlab(element_blank())
+
+
 # box plot of dry-down period
 p.drydown <- do.call(rbind.data.frame, peak2z.lst) %>%
   mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
@@ -98,17 +102,58 @@ p.drydown <- do.call(rbind.data.frame, peak2z.lst) %>%
   theme_classic() +
   ylab("Dry-down period (days)") +
   ylim(0,300) +
-  xlab(element_blank())
+  xlab(element_blank()) +
+  xlab(expression(paste("Zero flow threshold (",m^3/s,")")))
 
-ggpubr::ggarrange(p.noflow, p.firstzeroflow, p.drydown, p.intermittent,
-                  ncol = 1,
-                  label.x = 0.93,
+p.drydown.diff <- do.call(rbind.data.frame, peak2z.lst) %>%
+  group_by(gauge_ID) %>%
+  mutate(base = ifelse('0' %in% zero_flow_threshold, avg_ann[zero_flow_threshold == '0'], avg_ann[zero_flow_threshold == '0.004']),
+         diff = avg_ann - base) %>%
+  mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
+  ggplot()+
+  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold)) +
+  theme_classic() +
+  ylab("Diff. in dry-down period (days)") +
+  ylim(-200, 100) +
+  xlab(element_blank()) +
+  xlab(expression(paste("Zero flow threshold (",m^3/s,")")))
+
+ggpubr::ggarrange(p.noflow, p.noflow.diff, p.firstzeroflow, p.firstzeroflow.diff,
+                  p.drydown, p.drydown.diff,
+                  nrow = 3,
+                  ncol = 2,
+                  label.x = 0.9,
                   label.y = 1,
-                  labels = c('(a)','(b)','(c)', '(d)'))
+                  labels = c('(a)','(b)','(c)', '(d)', '(e)', '(f)'))
 
 ggsave(filename = "Figures/02_multi-gauge_zeroFlowThreshold_4metrics.png",
-       width = 7, height = 10)
+       width = 9, height = 9)
 
+
+## plot of number of intermittent gauges
+lineplot.df <- 
+  do.call(rbind.data.frame, zero.flow.duration.lst) %>%
+  mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
+  filter(avg_ann == 0) %>%
+  group_by(zero_flow_threshold) %>%
+  summarise(perennial_case = n())
+
+ggplot(data = lineplot.df) +
+  geom_line(aes(x = zero_flow_threshold, y = 222- perennial_case), colour = "red") +
+  theme_bw() +
+  ylab("No. of intermittent gauges") +
+  #  xlab(expression(paste("Zero flow threshold (",m^3/s,")"))) +
+  xlab(element_blank()) +
+  # ylim(50,150) +
+  #  geom_vline(xintercept = 0.032, linetype ='dashed')+
+  xlab(expression(paste("Zero flow threshold (",m^3/s,")")))
+
+ggsave(filename = 'Figures/02_multi_gauge_zeroFlowThrehold_NoIntermittentGauge.png',
+       width = 5, height = 3)
+
+####
+# blow code is not used any more
+###
 ## change of flow metric values from using the lowest to the highest zero flow threshold
 library(tidyr)
 boxplot.df %>%
