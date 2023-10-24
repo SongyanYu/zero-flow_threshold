@@ -66,56 +66,47 @@ single.gauge <- c('X227226', # 5
 classes <- c('Class 5', 'Class 6', 'Class 7', 'Class 8',
              'Class 9', 'Class 10', 'Class 11', 'Class 12')
 
-data_vline <- data.frame(gauge_ID = classes,
-                         vline = c(0.056, 0.072, 0.016, 0.076,
-                                   0.050, 0.050, 0.05, 0.046)) %>%
-  mutate(gauge_ID = factor(gauge_ID, levels = classes))
-
 p.noflow <- zero.flow.duration.df %>%
   filter(gauge_ID %in% single.gauge) %>%
   mutate(gauge_ID = factor(gauge_ID, levels = single.gauge,
                            labels = classes)) %>%
   ggplot() +
-  geom_line(aes(x = as.numeric(zero_flow_threshold), y = avg_ann)) +
+  geom_line(aes(x = as.numeric(zero_flow_threshold), y = avg_ann, colour = gauge_ID)) +
   theme_bw() +
-  facet_wrap(~gauge_ID, scales = 'free_y', ncol = 4) +
   xlab("") +
   ylab("Dry period fraction") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-#  geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
+  theme(axis.text.x=element_blank()) +
+  labs(colour = 'Intermittent flow\nregime class')
 
-  
 p.firstzeroflow <- zeroflow.first.df %>%
   filter(gauge_ID %in% single.gauge) %>%
   mutate(gauge_ID = factor(gauge_ID, levels = single.gauge,
                            labels = classes)) %>%
   ggplot() +
-  geom_line(aes(x = as.numeric(zero_flow_threshold), y = avg_ann)) +
+  geom_line(aes(x = as.numeric(zero_flow_threshold), y = avg_ann, colour = gauge_ID)) +
   theme_bw() +
-  facet_wrap(~gauge_ID, scales = 'free_y', ncol = 4) +
   xlab("") +
   ylab("First zero flow day") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-#  geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
-
+  theme(axis.text.x = element_blank()) +
+  labs(colour = 'Intermittent flow\nregime class')
 
 p.drydown <- peak2z.df %>%
   filter(gauge_ID %in% single.gauge) %>%
   mutate(gauge_ID = factor(gauge_ID, levels = single.gauge,
                            labels = classes)) %>%
   ggplot() +
-  geom_line(aes(x = as.numeric(zero_flow_threshold), y = avg_ann)) +
+  geom_line(aes(x = as.numeric(zero_flow_threshold), y = avg_ann, colour = gauge_ID)) +
   theme_bw() +
-  facet_wrap(~gauge_ID, scales = 'free_y', ncol = 4) +
   xlab(expression(paste("Zero flow threshold (",m^3/s,")"))) +
   ylab("Dry-down period (days)") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-#  geom_vline(data = data_vline, aes(xintercept = vline), linetype = 'dashed', colour = 'red')
+  labs(colour = 'Intermittent flow\nregime class')
 
 ggpubr::ggarrange(p.noflow, p.firstzeroflow, p.drydown,
                   ncol = 1,
                   label.x = 0.93,
-                  label.y = 1)
+                  label.y = 1,
+                  common.legend = TRUE,
+                  legend = 'top')
 
 ggsave(filename = "Figures/02_visualise_zeroFlowThreshold_3metrics.png",
        width = 6, height = 8)
