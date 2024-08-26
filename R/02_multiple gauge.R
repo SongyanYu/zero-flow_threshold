@@ -55,7 +55,9 @@ boxplot.df <-
 
 ## box plot of annual fraction of no flows
 p.noflow<- ggplot(data =boxplot.df) +
-  geom_boxplot(aes(x = zero_flow_threshold, y = avg_ann, group = zero_flow_threshold)) +
+  geom_boxplot(aes(x = zero_flow_threshold, y = avg_ann, group = zero_flow_threshold),
+               outlier.colour = 'grey') +
+#               outlier.shape = NA) +
   theme_classic() +
   ylab("Dry period fraction") +
   xlab(element_blank())
@@ -67,7 +69,8 @@ p.noflow.diff <- do.call(rbind.data.frame, zero.flow.duration.lst) %>%
          diff = avg_ann - base) %>%
   mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
   ggplot() +
-  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold)) +
+  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold), outlier.colour = 'grey') +
+#  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold), outlier.shape = NA) +
   theme_classic() +
   ylab("Diff. in dry period fraction") +
   xlab(element_blank())
@@ -76,7 +79,8 @@ p.noflow.diff <- do.call(rbind.data.frame, zero.flow.duration.lst) %>%
 p.firstzeroflow <- do.call(rbind.data.frame, zeroflow.first.lst) %>%
   mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
   ggplot()+
-  geom_boxplot(aes(x = zero_flow_threshold, y = avg_ann, group = zero_flow_threshold)) +
+  geom_boxplot(aes(x = zero_flow_threshold, y = avg_ann, group = zero_flow_threshold), outlier.colour = 'grey') +
+#  geom_boxplot(aes(x = zero_flow_threshold, y = avg_ann, group = zero_flow_threshold), outlier.shape = NA) +
   theme_classic() +
   ylab("First zero flow day") +
   xlab(element_blank())
@@ -88,7 +92,8 @@ p.firstzeroflow.diff <- do.call(rbind.data.frame, zeroflow.first.lst) %>%
          diff = avg_ann - base) %>%
   mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
   ggplot()+
-  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold)) +
+  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold), outlier.colour = 'grey') +
+#  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold), outlier.shape = NA) +
   theme_classic() +
   ylab("Diff. in first zero flow day") +
   xlab(element_blank())
@@ -98,7 +103,8 @@ p.firstzeroflow.diff <- do.call(rbind.data.frame, zeroflow.first.lst) %>%
 p.drydown <- do.call(rbind.data.frame, peak2z.lst) %>%
   mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
   ggplot()+
-  geom_boxplot(aes(x = zero_flow_threshold, y = avg_ann, group = zero_flow_threshold)) +
+  geom_boxplot(aes(x = zero_flow_threshold, y = avg_ann, group = zero_flow_threshold),outlier.colour = 'grey') +
+#  geom_boxplot(aes(x = zero_flow_threshold, y = avg_ann, group = zero_flow_threshold), outlier.shape = NA) +
   theme_classic() +
   ylab("Dry-down period (days)") +
   ylim(0,300) +
@@ -111,7 +117,8 @@ p.drydown.diff <- do.call(rbind.data.frame, peak2z.lst) %>%
          diff = avg_ann - base) %>%
   mutate(zero_flow_threshold = as.numeric(zero_flow_threshold)) %>%
   ggplot()+
-  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold)) +
+  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold), outlier.colour = 'grey') +
+#  geom_boxplot(aes(x = zero_flow_threshold, y = diff, group = zero_flow_threshold), outlier.shape = NA) +
   theme_classic() +
   ylab("Diff. in dry-down period (days)") +
   ylim(-200, 100) +
@@ -126,7 +133,7 @@ ggpubr::ggarrange(p.noflow, p.noflow.diff, p.firstzeroflow, p.firstzeroflow.diff
                   label.y = 1,
                   labels = c('(a)','(b)','(c)', '(d)', '(e)', '(f)'))
 
-ggsave(filename = "Figures/02_multi-gauge_zeroFlowThreshold_4metrics.png",
+ggsave(filename = "Figures/02_multi-gauge_zeroFlowThreshold_4metrics_GreyOutliers.png",
        width = 9, height = 9)
 
 
